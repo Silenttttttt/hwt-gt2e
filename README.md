@@ -168,6 +168,10 @@ See [`docs/WATCHFACE_RESEARCH.md`](docs/WATCHFACE_RESEARCH.md) for:
 ## Limitations
 
 - Only tested on **Huawei Watch GT 2e** (454×454 round display)
+- **Template-based approach**: the tool replaces the background of an existing `.hwt` rather
+  than authoring a watchface from scratch. Digit positions, icon placements, and UI layout are
+  all inherited from the template — you can't freely reposition elements or add new ones without
+  reverse-engineering and hand-editing the protobuf section
 - AOD (Always-On Display) is controlled by Huawei's closed firmware — third-party faces
   can only do "pseudo-AOD" via mode switching, not real hardware AOD
 - The `push` command uses Gadgetbridge's file installer; direct OTA is not implemented

@@ -112,8 +112,7 @@ python hwt.py build photo.jpg --name MyFace --template templates/SimpleItalic.hw
 Templates contain no proprietary Huawei ROM assets. The template determines
 which digit font and icon set appear on the watchface. **You can use any `.hwt`
 as a template** — the community has hundreds of digit styles and layouts available
-on sites like [AmazFit Watchfaces](https://amazfitwatchfaces.com/gt2/),
-[faces4watch](https://faces4watch.com), and various Telegram watchface channels.
+on sites like [AmazFit Watchfaces](https://amazfitwatchfaces.com/huawei-watch-gt/fresh?compatible=GT_2_42mm&paid=0) and various Telegram watchface channels.
 Download any `.hwt`, pass it via `--template`, and your image becomes the background
 while that face's number style and icons are preserved.
 

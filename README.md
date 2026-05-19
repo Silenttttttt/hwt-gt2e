@@ -62,6 +62,26 @@ A `.hwt` file is a **ZIP** containing:
 | `preview/cover.jpg` | Thumbnail shown in Gadgetbridge app |
 | `preview/aod.jpg` | AOD thumbnail (UI only — has no effect on watch AOD behavior) |
 
+```mermaid
+graph TD
+    HWT[".hwt  —  ZIP archive"]
+    HWT --> WF["com.huawei.watchface  binary"]
+    HWT --> DXML["description.xml\ntitle · author · screen resolution"]
+    HWT --> PRV["preview/\ncover.jpg  ·  aod.jpg  ·  icon_small.jpg"]
+
+    WF --> HDR["Header  16 B\nxmllen · maplen · binlen · magic"]
+    WF --> PROTO["Proto section  xmllen B\nplacement elements: image ID · x · y · type"]
+    WF --> FAT["FAT table  maplen B\n8 B per slot: offset · encoded size"]
+    WF --> SKIP["skip8  8 B\ntemplate-specific marker"]
+    WF --> BODY["Image body  binlen B\nconcatenated encoded images"]
+
+    BODY --> IMG0["img 0 — background\n454×454 px  ~60–90% opaque"]
+    BODY --> DIGS["img 1–10 — digit sprites\nglyphs 0–9"]
+    BODY --> ICONS["img 11+ — icons & decorations"]
+
+    IMG0 --> ENC["BGRA + RLE per pixel\nnormal:  B G R A  4 B\nrun:     89 67 45 23 · B G R A · count 4 B"]
+```
+
 Images inside the body use a simple **BGRA + RLE** format. The toolkit decodes/encodes
 these entirely without any Huawei SDK.
 
@@ -90,7 +110,12 @@ python hwt.py build photo.jpg --name MyFace --template templates/SimpleItalic.hw
 ```
 
 Templates contain no proprietary Huawei ROM assets. The template determines
-which digit font and icon set appear on the watchface.
+which digit font and icon set appear on the watchface. **You can use any `.hwt`
+as a template** — the community has hundreds of digit styles and layouts available
+on sites like [AmazFit Watchfaces](https://amazfitwatchfaces.com/gt2/),
+[faces4watch](https://faces4watch.com), and various Telegram watchface channels.
+Download any `.hwt`, pass it via `--template`, and your image becomes the background
+while that face's number style and icons are preserved.
 
 ---
 

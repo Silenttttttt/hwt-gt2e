@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+watchfaces/
+*_view/
+*.png
+*.jpg
+*.jpeg
+!templates/
+.playwright-mcp/
+*.b64.txt
+wf_chunk*.txt

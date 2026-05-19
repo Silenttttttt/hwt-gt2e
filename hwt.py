@@ -5,7 +5,7 @@ hwt.py — Huawei GT2e (.hwt) watchface toolkit
   python hwt.py info   FILE.hwt              Print metadata and image table
   python hwt.py view   FILE.hwt [--out DIR]  Extract images + contact-sheet PNG
   python hwt.py build  IMAGE    [options]    Build a new watchface from any image
-  python hwt.py push   FILE.hwt              Push to phone via ADB + open installer
+  python hwt.py push   FILE.hwt [--via ...]  Push to phone via ADB + open installer
 
 Build options:
   --name  NAME   Display name on watch  (default: image stem)
@@ -26,6 +26,9 @@ OUT_DIR      = HERE / "watchfaces"
 GB_PKG       = "nodomain.freeyourgadget.gadgetbridge"
 GB_FILES     = f"/sdcard/Android/data/{GB_PKG}/files"
 PROVIDER     = f"{GB_PKG}.screenshot_provider"
+
+HH_PKG       = "com.huawei.health"
+HH_DIR       = "/sdcard/Huawei/Themes"
 
 # Orange-box regions in 250×250 image space (where hour/minute digits are displayed)
 _HOUR_BOX   = (8,   15, 124, 212)   # (x1, y1, x2, y2)
@@ -757,13 +760,38 @@ def cmd_build(args):
     print(f"Written : {out_path}  ({out_path.stat().st_size:,} bytes)")
 
     if args.push:
-        cmd_push_path(out_path)
+        if getattr(args, "via", "gadgetbridge") == "huawei-health":
+            cmd_push_path_hh(out_path)
+        else:
+            cmd_push_path(out_path)
 
     return out_path
 
 
 def cmd_push(args):
-    cmd_push_path(Path(args.file))
+    via = getattr(args, "via", "gadgetbridge")
+    if via == "huawei-health":
+        cmd_push_path_hh(Path(args.file))
+    else:
+        cmd_push_path(Path(args.file))
+
+
+def cmd_push_path_hh(hwt_path: Path):
+    name   = hwt_path.name
+    remote = f"{HH_DIR}/{name}"
+
+    print(f"Pushing {name} → {remote}")
+    subprocess.run(["adb", "push", str(hwt_path), remote], check=True)
+
+    print("Opening Huawei Health…")
+    subprocess.run([
+        "adb", "shell", "monkey", "-p", HH_PKG, "-c",
+        "android.intent.category.LAUNCHER", "1",
+    ], check=True)
+
+    print()
+    print("On the phone: Watchfaces → Mine → ADD WATCH FACES → select the file from")
+    print(f"  Huawei/Themes/{name}")
 
 
 def cmd_push_path(hwt_path: Path):
@@ -815,6 +843,9 @@ def main():
     pb.add_argument("--out",   "-o", help="Output .hwt path")
     pb.add_argument("--push",  "-p", action="store_true",
                     help="Push to phone after build")
+    pb.add_argument("--via", choices=["gadgetbridge", "huawei-health"],
+                    default="gadgetbridge",
+                    help="Install target when using --push (default: gadgetbridge)")
     pb.add_argument("--posterize", action="store_true",
                     help="Posterize background (lossy flat colours, smaller file)")
     pb.add_argument("--composite", "-c", action="store_true",
@@ -824,6 +855,9 @@ def main():
     # push
     pp = sp.add_parser("push", help="Push existing .hwt to phone via ADB")
     pp.add_argument("file")
+    pp.add_argument("--via", choices=["gadgetbridge", "huawei-health"],
+                    default="gadgetbridge",
+                    help="Install target (default: gadgetbridge)")
 
     args = p.parse_args()
     {"info": cmd_info, "view": cmd_view,

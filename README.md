@@ -94,19 +94,35 @@ which digit font and icon set appear on the watchface.
 
 ---
 
-## Push workflow
+## Push / install
 
-Pushing requires:
-1. **ADB** connected (USB or wireless)
-2. **Gadgetbridge** installed on the phone with storage permission granted
-3. Watch paired in Gadgetbridge
+Pushing requires ADB connected (USB or wireless). Two install targets are supported:
+
+### Huawei Health (recommended)
+
+No third-party apps needed — uses the official Huawei companion app.
+
+```bash
+python hwt.py push watchfaces/MyFace.hwt --via huawei-health
+# or combined with build:
+python hwt.py build photo.jpg --push --via huawei-health
+```
+
+The script copies the file to `/sdcard/Huawei/Themes/` and opens Huawei Health.
+On the phone: **Watchfaces → Mine → ADD WATCH FACES** → select the file.
+
+### Gadgetbridge (default)
+
+Open-source alternative. Requires [Gadgetbridge](https://codeberg.org/Freeyourgadget/Gadgetbridge)
+installed and watch paired.
 
 ```bash
 python hwt.py push watchfaces/MyFace.hwt
+# or:
+python hwt.py push watchfaces/MyFace.hwt --via gadgetbridge
 ```
 
-This copies the file to Gadgetbridge's data directory and opens the installer activity.
-Tap **Install** on the phone — the watch updates within seconds.
+Copies to Gadgetbridge's data directory and opens the installer activity — tap **Install**.
 
 ---
 
